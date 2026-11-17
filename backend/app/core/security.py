@@ -130,5 +130,69 @@ def hash_client_ip(ip: str | None) -> str | None:
     return hashlib.sha256(f"{salt}:{ip}".encode("utf-8")).hexdigest()[:32]
 
 
+def _trusted_proxy_networks(trusted_proxy_ips: list[str]):
+    """Parse configured proxy IPs/CIDRs into networks; invalid entries are ignored."""
+    import ipaddress
+
+    networks = []
+    for entry in trusted_proxy_ips:
+        try:
+            networks.append(ipaddress.ip_network(entry, strict=False))
+        except ValueError:
+            continue
+    return networks
+
+
+def _ip_in_networks(ip: str | None, networks) -> bool:
+    if not ip:
+        return False
+    import ipaddress
+
+    try:
+        addr = ipaddress.ip_address(ip.strip())
+    except ValueError:
+        return False
+    return any(addr in network for network in networks)
+
+
+def resolve_client_ip(
+    request,
+    *,
+    trust_proxy_headers: bool | None = None,
+    trusted_proxy_ips: list[str] | None = None,
+) -> str | None:
+    """Return the originating client IP, trusting forwarded headers only from proxies.
+
+    When proxy-header trust is disabled (the default) or the direct peer is not
+    an explicitly trusted proxy, the peer address is returned and any
+    X-Forwarded-For header is ignored. When enabled, the chain is resolved
+    right-to-left and the first non-trusted hop is returned, so a client cannot
+    spoof its identity by prepending arbitrary values. If every hop in the chain
+    is trusted, the leftmost value is returned as a last resort.
+    """
+    peer = request.client.host if getattr(request, "client", None) else None
+    if trust_proxy_headers is None:
+        trust_proxy_headers = settings.trust_proxy_headers
+    if trusted_proxy_ips is None:
+        trusted_proxy_ips = settings.trusted_proxy_ip_list
+
+    networks = _trusted_proxy_networks(trusted_proxy_ips)
+    if not trust_proxy_headers or not networks or not _ip_in_networks(peer, networks):
+        return peer
+
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if not forwarded:
+        return peer
+
+    hops = [part.strip() for part in forwarded.split(",") if part.strip()]
+    if not hops:
+        return peer
+
+    for hop in reversed(hops):
+        if not _ip_in_networks(hop, networks):
+            return hop
+    return hops[0]
+
+
 def normalise_email(email: str) -> str:
     return email.strip().lower()

@@ -16,7 +16,7 @@ from threading import Lock
 from fastapi import Request
 
 from app.core.exceptions import AppError
-from app.core.security import hash_client_ip
+from app.core.security import hash_client_ip, resolve_client_ip
 
 
 class RateLimitExceeded(AppError):
@@ -60,8 +60,12 @@ def client_key(request: Request, *, scope: str, principal: str | None = None) ->
     Neither the raw IP nor the raw email is stored in the shared counter table.
     The fixed digest is not a secret; it prevents casual account disclosure in
     operational database reads while preserving per-account aggregation.
+
+    The client component is derived from the resolved peer IP. Forwarded headers
+    are only honoured when proxy trust is explicitly configured; arbitrary
+    X-Forwarded-For values from untrusted peers are ignored.
     """
-    ip_hash = hash_client_ip(request.client.host if request.client else None) or "unknown"
+    ip_hash = hash_client_ip(resolve_client_ip(request)) or "unknown"
     identity = principal.strip().lower() if principal else "-"
     return f"{scope}:{ip_hash}:{_principal_digest(identity)}"
 

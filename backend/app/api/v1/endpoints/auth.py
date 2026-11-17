@@ -26,6 +26,7 @@ from app.core.security import (
     hash_token,
     generate_token,
     normalise_email,
+    resolve_client_ip,
     tokens_match,
     validate_password_strength,
     verify_password,
@@ -88,7 +89,8 @@ GENERIC_RESET_MESSAGE = "If the account exists, password reset instructions have
 # ---------------------------------------------------------------------------
 
 def _client_ip(request: Request) -> str | None:
-    return request.client.host if request.client else None
+    """Resolved client IP for session forensics (safe forwarded-header handling)."""
+    return resolve_client_ip(request)
 
 
 def _me_payload(
@@ -281,6 +283,14 @@ def login(payload: LoginRequest, request: Request, response: Response, db: DbSes
     security_limiter.hit(
         db,
         key=account_key("login", email),
+        limit=settings.auth_login_attempts_per_hour,
+        window_seconds=3600,
+    )
+    # Aggregate client limit: bounds total guessing from one source across
+    # different accounts (uses the safely resolved client identity).
+    security_limiter.hit(
+        db,
+        key=client_key(request, scope="login"),
         limit=settings.auth_login_attempts_per_hour,
         window_seconds=3600,
     )
@@ -1433,9 +1443,15 @@ def forgot_password(payload: PasswordResetRequest, request: Request, db: DbSessi
 @router.post("/reset-password", response_model=AuthMessage, summary="Reset a password with a token")
 def reset_password(payload: PasswordResetConfirm, request: Request, response: Response, db: DbSession) -> AuthMessage:
     now = utcnow()
+    # Scope by presented token hash so a noisy or malicious client cannot exhaust
+    # the global bucket for other users; this never exposes the raw token.
     security_limiter.hit(
         db,
-        key=client_key(request, scope="password_reset_confirm"),
+        key=client_key(
+            request,
+            scope="password_reset_confirm",
+            principal=hash_token(payload.token),
+        ),
         limit=settings.auth_reset_attempts_per_hour,
         window_seconds=3600,
     )

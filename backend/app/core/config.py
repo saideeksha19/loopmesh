@@ -56,6 +56,17 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     request_id_header: str = "X-Request-ID"
 
+    # --- proxy trust -------------------------------------------------------
+    # Forwarded headers (e.g. X-Forwarded-For) are only honoured when the
+    # direct peer is an explicitly trusted proxy. Disabled by default so a
+    # client can never spoof its address by sending arbitrary headers.
+    trust_proxy_headers: bool = False
+    # Comma-separated trusted proxy IPs and/or CIDR ranges (e.g.
+    # "127.0.0.1,10.0.0.0/8"). Ignored unless trust_proxy_headers is true.
+    # Wildcards ("*", "0.0.0.0/0" used as a trust-everything shortcut) are
+    # never allowed; list only the actual proxy hops you operate.
+    trusted_proxy_ips: str = ""
+
     # --- logging -----------------------------------------------------------
     log_level: str = "INFO"
     log_json: bool = True
@@ -148,6 +159,11 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @property
+    def trusted_proxy_ip_list(self) -> list[str]:
+        """Trusted proxy IPs/CIDRs as a clean list."""
+        return [value.strip() for value in self.trusted_proxy_ips.split(",") if value.strip()]
+
+    @property
     def is_sqlite(self) -> bool:
         return self.database_url.startswith("sqlite:")
 
@@ -185,6 +201,25 @@ class Settings(BaseSettings):
             problems.append("DEBUG must be disabled in production.")
         if self.mfa_encryption_key is not None and len(self.mfa_encryption_key) < 32:
             problems.append("MFA_ENCRYPTION_KEY is set but too short to be a Fernet key.")
+        trusted_proxies = self.trusted_proxy_ip_list
+        if any(entry in {"*", "0.0.0.0/0", "::/0"} for entry in trusted_proxies):
+            problems.append(
+                "TRUSTED_PROXY_IPS must list explicit proxy IPs/CIDRs; wildcards are not allowed."
+            )
+        if self.trust_proxy_headers and not trusted_proxies:
+            problems.append(
+                "TRUSTED_PROXY_IPS must be configured when TRUST_PROXY_HEADERS is enabled."
+            )
+        if self.trust_proxy_headers and trusted_proxies:
+            import ipaddress
+
+            for entry in trusted_proxies:
+                try:
+                    ipaddress.ip_network(entry, strict=False)
+                except ValueError:
+                    problems.append(
+                        f"TRUSTED_PROXY_IPS contains an invalid IP/CIDR entry: {entry!r}."
+                    )
         if problems:
             raise RuntimeError("Unsafe production configuration: " + " ".join(problems))
 
