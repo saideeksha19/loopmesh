@@ -1,0 +1,58 @@
+# ---------------------------------------------------------------------------
+# LOOPMESH — repository root .gitignore
+# ---------------------------------------------------------------------------
+
+# Secrets & environment ------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python ---------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Local SQLite databases (development fallback only) --------------------------
+*.db
+*.db-journal
+*.sqlite3
+
+# Node / Next.js -------------------------------------------------------------
+node_modules/
+.next/
+out/
+next-env.d.ts
+.turbo/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Tooling / OS ---------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Agent runtime metadata (managed by the host application) -------------------
+.freebuff/
+
+# Browser test artifacts ------------------------------------------------------
+playwright-report/
+test-results/
+blob-report/
+*.trace.zip
+
+# Vendored browser binaries (installed locally, never committed) ---------------
+.playwright-browsers/

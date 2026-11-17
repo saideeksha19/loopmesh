@@ -1,0 +1,310 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   LOOPMESH premium design tokens — Industrial Intelligence OS
+   Forest #10291A · Deep Sage #2C4434 · Soft Lime #C6F35C
+   Mist Grey #E7EBE8 · Paper White #F6F7F4 · Muted Sage #6A8874
+   ========================================================================== */
+@theme {
+  /* Core brand surfaces */
+  --color-forest-950: #0b1f15;
+  --color-forest-900: #10291a;
+  --color-forest-850: #183222;
+  --color-forest-800: #2c4434;
+  --color-forest-700: #365444;
+  --color-forest-600: #4a6b59;
+  --color-forest-500: #6a8874;
+
+  /* Accent */
+  --color-lime-500: #a9d63a;
+  --color-lime-400: #c6f35c;
+  --color-lime-300: #d9f78a;
+  --color-lime-200: #eafcc0;
+
+  /* Canvas / surfaces */
+  --color-paper-50: #f6f7f4;
+  --color-paper-100: #e7ebe8;
+  --color-paper-200: #d5ddd8;
+  --color-paper-300: #bcc9c1;
+
+  /* Ink */
+  --color-ink-900: #10291a;
+  --color-ink-700: #2c4434;
+  --color-ink-500: #4f6b5d;
+  --color-ink-400: #6a8874;
+  --color-ink-300: #93a9a0;
+
+  /* Semantic / flow tones */
+  --color-clay-500: #b4713f;
+  --color-rust-500: #b65a3c;
+  --color-teal-500: #3f8276;
+  --color-amber-500: #caa24a;
+  --color-flow-energy: #c6f35c;
+  --color-flow-water: #4fa89a;
+  --color-flow-material: #d2b24a;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-jet), ui-monospace, "SFMono-Regular", monospace;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-panel: 18px;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-paper-100);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    background-image:
+      radial-gradient(1200px 500px at 85% -10%, rgba(198, 243, 92, 0.08), transparent 60%),
+      radial-gradient(900px 420px at -10% 10%, rgba(44, 68, 52, 0.06), transparent 55%);
+  }
+
+  ::selection {
+    background: var(--color-lime-400);
+    color: var(--color-forest-950);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-paper-300) transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-lime-400);
+    outline-offset: 2px;
+  }
+}
+
+/*
+ * Keyboard focus must stay visible on workspace controls that set `outline-none`
+ * for pointer interaction. Element + pseudo-class specificity (0,1,1) beats the
+ * single-class `outline-none` utility, while component-level
+ * `focus-visible:outline-none` + ring treatments (0,2,0) keep priority, so
+ * nothing gains a double ring. The dark hairline keeps the lime outline legible
+ * on light paper surfaces; outlines are not animated, so reduced motion holds.
+ */
+@layer utilities {
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  button:focus-visible,
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--color-lime-400);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-forest-950) 70%, transparent);
+  }
+}
+
+@layer components {
+  .panel {
+    background-color: color-mix(in srgb, var(--color-paper-50) 96%, white);
+    border: 1px solid color-mix(in srgb, var(--color-paper-300) 55%, transparent);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      0 1px 0 rgba(16, 41, 26, 0.04),
+      0 22px 50px -38px rgba(16, 41, 26, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+
+  .panel-flat {
+    background-color: var(--color-paper-50);
+    border: 1px solid color-mix(in srgb, var(--color-paper-300) 55%, transparent);
+    border-radius: var(--radius-panel);
+  }
+
+  .panel-dark {
+    background:
+      linear-gradient(180deg, rgba(44, 68, 52, 0.92), rgba(16, 41, 26, 0.98)),
+      var(--color-forest-900);
+    border: 1px solid rgba(106, 136, 116, 0.22);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      0 24px 60px -40px rgba(6, 17, 13, 0.8),
+      inset 0 1px 0 rgba(198, 243, 92, 0.06);
+  }
+
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .figure {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .hairline {
+    border-color: var(--color-paper-200);
+  }
+
+  .tech-grid {
+    background-image:
+      linear-gradient(to right, rgba(44, 68, 52, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(44, 68, 52, 0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .tech-grid-dark {
+    background-image:
+      linear-gradient(to right, rgba(198, 243, 92, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(198, 243, 92, 0.08) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  .cinematic-surface {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(800px 260px at 20% -10%, rgba(198, 243, 92, 0.14), transparent 60%),
+      radial-gradient(700px 260px at 100% 0%, rgba(79, 168, 154, 0.12), transparent 55%),
+      linear-gradient(135deg, #10291a 0%, #183222 45%, #2c4434 100%);
+  }
+
+  .glow-lime {
+    box-shadow: 0 0 0 1px rgba(198, 243, 92, 0.18), 0 0 28px -10px rgba(198, 243, 92, 0.55);
+  }
+
+  .row-hover {
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+  }
+
+  .row-hover:hover {
+    background-color: color-mix(in srgb, var(--color-paper-50) 75%, white);
+  }
+}
+
+@layer utilities {
+  .animate-rise {
+    animation: rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade {
+    animation: fade 360ms ease-out both;
+  }
+
+  .animate-drawer {
+    animation: drawer 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 3s ease-in-out infinite;
+  }
+
+  .animate-bar-grow {
+    transform-origin: left;
+    animation: bar-grow 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-sheen {
+    animation: sheen 8s linear infinite;
+  }
+
+  .transition-premium {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity, filter;
+    transition-duration: 220ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawer {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0.2);
+    opacity: 0.4;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sheen {
+  from {
+    transform: translateX(-30%);
+  }
+  to {
+    transform: translateX(30%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-fade,
+  .animate-drawer,
+  .animate-pulse-soft,
+  .animate-bar-grow,
+  .animate-sheen {
+    animation: none !important;
+  }
+  .transition-premium,
+  .row-hover {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -80;
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "captured_at": "2026-11-15T20:07:33.756849+00:00",
+  "approval_reference": "BATCH13-BASELINE-ESTABLISHMENT",
+  "databases": {
+    "loopmesh_dev.db": {
+      "path": "C:\\Users\\ddsai\\Downloads\\LOOPMESH\\backend\\loopmesh_dev.db",
+      "size_bytes": 552960,
+      "sha256": "b0bfea028fbfe8bde997e5320b54e21217c32475804a0a34db1e8ca93d8b33e9",
+      "schema_fingerprint": "26bf5cd66c83fb5fd3b8b320c6c5233b00707dcb8251b888b2b5dcb2446460e8",
+      "table_count": 16,
+      "tables": [
+        "agent_executions",
+        "alembic_version",
+        "audit_events",
+        "auth_sessions",
+        "invitations",
+        "material_specifications",
+        "materials",
+        "organization_memberships",
+        "organizations",
+        "password_reset_tokens",
+        "recovery_opportunities",
+        "recovery_proposals",
+        "recovery_transactions",
+        "resource_demands",
+        "status_transitions",
+        "users"
+      ],
+      "alembic_revision": "c3e5f7a9b1d2",
+      "integrity_check": [
+        "ok"
+      ]
+    },
+    "loopmesh_e2e.db": {
+      "path": "C:\\Users\\ddsai\\Downloads\\LOOPMESH\\backend\\loopmesh_e2e.db",
+      "size_bytes": 552960,
+      "sha256": "ae89fc8236ca70376129e32f16adbac864b1606c634aa8b7afb0a8825ca88afe",
+      "schema_fingerprint": "26bf5cd66c83fb5fd3b8b320c6c5233b00707dcb8251b888b2b5dcb2446460e8",
+      "table_count": 16,
+      "tables": [
+        "agent_executions",
+        "alembic_version",
+        "audit_events",
+        "auth_sessions",
+        "invitations",
+        "material_specifications",
+        "materials",
+        "organization_memberships",
+        "organizations",
+        "password_reset_tokens",
+        "recovery_opportunities",
+        "recovery_proposals",
+        "recovery_transactions",
+        "resource_demands",
+        "status_transitions",
+        "users"
+      ],
+      "alembic_revision": "c3e5f7a9b1d2",
+      "integrity_check": [
+        "ok"
+      ]
+    }
+  },
+  "notes": "Protected demo databases. Tests must use disposable copies. Update only after an approved, recorded demo data change."
+}
