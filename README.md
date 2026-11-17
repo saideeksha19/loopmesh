@@ -217,6 +217,7 @@ Copy `.env.example` to `backend/.env` (backend values) and, if needed,
 | `GEMINI_API_KEY` | empty | backend | Reserved for Phase 2 — **unused in Phase 1** |
 | `NEXT_PUBLIC_API_URL` | `http://127.0.0.1:8000` | frontend (browser) | Browser-visible API base |
 | `API_INTERNAL_URL` | falls back to the above | frontend (server) | Server-side API base |
+| `E2E_MFA_KEY` | none — **required for browser E2E** | Playwright harness (shell) | Disposable test-only Fernet key; validated in `frontend/playwright.config.ts` and passed to the throwaway E2E backend as `MFA_ENCRYPTION_KEY`. Never a production key, never committed |
 
 Secrets stay on the backend. The frontend only ever receives the public API URL.
 
@@ -316,6 +317,25 @@ cd frontend
 npx tsc --noEmit
 npm run build
 ```
+
+### Browser end-to-end tests
+
+The Playwright suite (`frontend/e2e`) seeds a disposable SQLite database and
+starts its own backend, so it needs a test-only MFA encryption key. There is no
+default and the key is never generated for you: export a fresh throwaway value in
+the shell that runs the tests.
+
+```bash
+cd frontend
+export E2E_MFA_KEY="$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')"
+npm run test:e2e
+```
+
+`playwright.config.ts` passes the value to the temporary backend as both
+`E2E_MFA_KEY` and `MFA_ENCRYPTION_KEY`; the seed script refuses to run without
+it, and the config fails before any server starts if it is missing or not a
+valid Fernet key. Never use a production or shared key here, and never commit
+the value — a lost key only invalidates that disposable test database.
 
 Verified in this build:
 
