@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from sqlalchemy import text
 
 from app.api.v1.router import api_router
@@ -69,8 +70,9 @@ app = FastAPI(
     ],
 )
 
-# Order matters: the last added middleware runs first, so the request context
-# (and its correlation id) wraps CORS handling as well.
+# Order matters: the last added middleware runs first. Request context wraps
+# CORS so allowed requests keep correlation IDs; TrustedHost is outermost so an
+# unauthorized Host header is rejected before routing or other middleware.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
@@ -84,6 +86,10 @@ app.add_middleware(
     RequestContextMiddleware,
     header_name=settings.request_id_header,
     skip_paths=("/health",),
+)
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=settings.allowed_host_list,
 )
 
 register_exception_handlers(app)

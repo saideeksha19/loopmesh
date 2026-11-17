@@ -54,6 +54,10 @@ class Settings(BaseSettings):
 
     # --- HTTP --------------------------------------------------------------
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    # Comma-separated Host header allow-list. Defaults cover local development
+    # and FastAPI's TestClient ("testserver"); production must set an explicit
+    # non-empty list of real hostnames.
+    allowed_hosts: str = "localhost,127.0.0.1,testserver"
     request_id_header: str = "X-Request-ID"
 
     # --- proxy trust -------------------------------------------------------
@@ -159,6 +163,11 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @property
+    def allowed_host_list(self) -> list[str]:
+        """Allowed Host header values as a clean list."""
+        return [host.strip() for host in self.allowed_hosts.split(",") if host.strip()]
+
+    @property
     def trusted_proxy_ip_list(self) -> list[str]:
         """Trusted proxy IPs/CIDRs as a clean list."""
         return [value.strip() for value in self.trusted_proxy_ips.split(",") if value.strip()]
@@ -201,6 +210,13 @@ class Settings(BaseSettings):
             problems.append("DEBUG must be disabled in production.")
         if self.mfa_encryption_key is not None and len(self.mfa_encryption_key) < 32:
             problems.append("MFA_ENCRYPTION_KEY is set but too short to be a Fernet key.")
+        hosts = self.allowed_host_list
+        if not hosts or any(host == "*" for host in hosts):
+            problems.append(
+                "ALLOWED_HOSTS must be an explicit non-empty allow-list in production."
+            )
+        if any(any(ch.isspace() for ch in host) for host in hosts):
+            problems.append("ALLOWED_HOSTS entries must not contain whitespace.")
         trusted_proxies = self.trusted_proxy_ip_list
         if any(entry in {"*", "0.0.0.0/0", "::/0"} for entry in trusted_proxies):
             problems.append(
