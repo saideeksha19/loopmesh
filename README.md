@@ -215,11 +215,22 @@ Copy `.env.example` to `backend/.env` (backend values) and, if needed,
 | `PLATFORM_AUDIT_EXPORT_MAX_ROWS` | `5000` | backend | Maximum rows in one audit export (100–20,000) |
 | `PLATFORM_AUDIT_EXPORT_MAX_RANGE_DAYS` | `90` | backend | Maximum export date span (1–365 days) |
 | `GEMINI_API_KEY` | empty | backend | Reserved for Phase 2 — **unused in Phase 1** |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1,testserver` | backend | Comma-separated `Host` header allow-list enforced by `TrustedHostMiddleware`. Local defaults include `testserver` for tests; **in production this must be an explicit, non-empty list of real hostnames** (no `*`, no whitespace entries). |
+| `TRUST_PROXY_HEADERS` | `false` | backend | Only when `true` **and** the direct peer is in `TRUSTED_PROXY_IPS` are forwarded headers honoured; the client IP is resolved from `X-Forwarded-For` right-to-left to the first non-trusted hop. **Keep `false` unless your deployment topology and proxy hops are explicitly known.** |
+| `TRUSTED_PROXY_IPS` | empty | backend | Comma-separated trusted proxy IPs and/or CIDRs (for example the actual reverse-proxy/load-balancer hop addresses in your environment). Required when `TRUST_PROXY_HEADERS=true`. Wildcards (`*`, `0.0.0.0/0`, `::/0`) are rejected; list only the proxies you operate. Do not guess values. |
 | `NEXT_PUBLIC_API_URL` | `http://127.0.0.1:8000` | frontend (browser) | Browser-visible API base |
 | `API_INTERNAL_URL` | falls back to the above | frontend (server) | Server-side API base |
 | `E2E_MFA_KEY` | none — **required for browser E2E** | Playwright harness (shell) | Disposable test-only Fernet key; validated in `frontend/playwright.config.ts` and passed to the throwaway E2E backend as `MFA_ENCRYPTION_KEY`. Never a production key, never committed |
 
 Secrets stay on the backend. The frontend only ever receives the public API URL.
+
+### Production security configuration
+
+`ENVIRONMENT=production` enables startup validation (`Settings.validate_runtime_security()` in the API lifespan) and fails fast on unsafe configuration:
+
+- **Host validation vs CORS:** `ALLOWED_HOSTS` controls which HTTP `Host` headers the FastAPI app will accept (`TrustedHostMiddleware`, rejected before routing with HTTP 400). This is distinct from `CORS_ORIGINS`, which controls which browser origins may make cross-origin requests. In production both must be explicit allow-lists: `ALLOWED_HOSTS` set to your real hostnames (no wildcard) and `CORS_ORIGINS` set to your real `https://` origins (no wildcard, no `http://`).
+- **Proxy and client IP:** rate limiting and session/IP attribution derive the client from the resolved peer IP. Forwarded headers are **not** trusted by default (`TRUST_PROXY_HEADERS=false`). Only enable `TRUST_PROXY_HEADERS=true` when the API is reached through known proxy hops **and** you have configured `TRUSTED_PROXY_IPS` to the explicit IPs/CIDRs of those hops; the resolver uses `X-Forwarded-For` right-to-left and returns the first non-trusted hop, so untrusted peers and arbitrary/spoofed forwarded headers are ignored. Wildcard trust is never accepted. Do not invent proxy topology or trusted IP ranges — if they are unknown, leave proxy-header trust disabled.
+- **Safe defaults:** keep `DEBUG=false`, use PostgreSQL, keep auth cookies secure in production, and treat proxy-header trust as opt-in with an explicit, reviewed allow-list. Validate the full request path (TLS termination, reverse proxy, forwarded headers, and the actual `Host` seen by the backend) in your deployment environment before relying on client-IP-dependent controls.
 
 ---
 
