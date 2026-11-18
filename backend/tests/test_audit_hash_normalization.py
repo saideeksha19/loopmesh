@@ -167,8 +167,12 @@ PG_URL = os.environ.get(
 
 
 def _pg_available(url: str) -> bool:
+    # This probe runs at import time (inside skipif decorators), so it must never
+    # block: without an explicit connect_timeout libpq waits on TCP for minutes
+    # when nothing is listening, stalling collection before any test runs.
+    connect_args = {"connect_timeout": 2} if url.startswith("postgresql") else {}
     try:
-        eng = create_engine(url, future=True)
+        eng = create_engine(url, future=True, connect_args=connect_args)
         with eng.connect() as c:
             c.execute(text("select 1"))
         eng.dispose()

@@ -42,7 +42,7 @@ export function PlatformCapabilities() {
           <br />
           <span className="text-forest-700">not just discovery.</span>
         </h2>
-        <p className="mt-6 max-w-2xl text-[14px] leading-relaxed text-ink-600 sm:text-[16px]">
+        <p className="mt-6 max-w-2xl text-[14px] leading-relaxed text-ink-500 sm:text-[16px]">
           LoopMesh combines structured data, deterministic screening, and governed workflows so teams can move from insight to verified recovery with a clear record of decisions.
         </p>
 
@@ -53,7 +53,7 @@ export function PlatformCapabilities() {
               className="rounded-2xl border border-paper-300 bg-white/70 p-6 shadow-[0_1px_0_rgba(16,41,26,0.04)] backdrop-blur-sm"
             >
               <h3 className="text-[15px] font-semibold text-ink-900">{c.title}</h3>
-              <p className="mt-3 text-[13px] leading-relaxed text-ink-600">{c.body}</p>
+              <p className="mt-3 text-[13px] leading-relaxed text-ink-500">{c.body}</p>
             </div>
           ))}
         </div>

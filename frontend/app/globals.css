@@ -308,3 +308,104 @@
     stroke-dashoffset: -80;
   }
 }
+
+/* ==========================================================================
+   Homepage storytelling motion
+   Lightweight CSS-only primitives: scroll reveals, flow lines and one slow
+   orbital ring. Each one is disabled under prefers-reduced-motion and the
+   reveal never hides content when scripting is unavailable.
+   ========================================================================== */
+@layer utilities {
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 780ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 780ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Dashed connector lines that travel in the reading direction. */
+  .flow-dash {
+    stroke-dasharray: 5 9;
+    animation: dash-flow 2.8s linear infinite;
+  }
+
+  .flow-dash-slow {
+    stroke-dasharray: 5 11;
+    animation: dash-flow 9s linear infinite;
+  }
+
+  .orbit-ring {
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+    animation: orbit-spin 140s linear infinite;
+  }
+
+  .node-pulse {
+    animation: node-pulse 5s ease-in-out infinite;
+  }
+
+  .parallax-layer {
+    transition: transform 120ms linear;
+    will-change: transform;
+  }
+}
+
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes node-pulse {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Global safety net: arbitrary `animate-[…]` utilities elsewhere on the page
+     must not loop for visitors who asked for less motion. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .flow-dash,
+  .flow-dash-slow,
+  .orbit-ring,
+  .node-pulse {
+    animation: none !important;
+  }
+
+  .parallax-layer {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

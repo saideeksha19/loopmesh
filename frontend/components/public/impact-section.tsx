@@ -23,7 +23,7 @@ export function ImpactSection() {
   ];
 
   const toneClass = {
-    neutral: "border-paper-300 bg-white/60 text-ink-800",
+    neutral: "border-paper-300 bg-white/60 text-ink-700",
     outline: "border-forest-600/50 bg-forest-900/30 text-forest-100",
     forest: "border-forest-500/60 bg-forest-800/40 text-paper-100",
     lime: "border-lime-400/40 bg-lime-400/10 text-lime-100",

@@ -69,12 +69,18 @@ export function ProblemSection() {
               ))}
             </div>
             {/* Disconnected dashed paths */}
-            <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+            <svg
+              className="pointer-events-none absolute inset-0 h-full w-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
               <path
-                d="M 18% 70% L 18% 85% M 50% 70% L 50% 90% M 82% 70% L 82% 85%"
+                d="M 18 70 L 18 85 M 50 70 L 50 90 M 82 70 L 82 85"
                 fill="none"
                 stroke="rgba(231,235,232,0.15)"
                 strokeWidth="1.5"
+                vectorEffect="non-scaling-stroke"
                 strokeDasharray="4 6"
               />
             </svg>
