@@ -82,7 +82,8 @@ Next.js App Router ──REST/JSON──▶ FastAPI /api/v1 ──SQLAlchemy─�
 
 Full detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) ·
 Platform administration: [`docs/PLATFORM_ADMIN.md`](docs/PLATFORM_ADMIN.md) ·
-Phases: [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Phases: [`docs/ROADMAP.md`](docs/ROADMAP.md) ·
+Deployment: [`docs/DEPLOYMENT_RENDER.md`](docs/DEPLOYMENT_RENDER.md).
 
 ### Technology stack
 
@@ -125,6 +126,7 @@ Google OR-Tools, NetworkX, Pandas, Gemini API, LangGraph.
 │   └── package.json
 ├── docs/
 │   ├── ARCHITECTURE.md
+│   ├── DEPLOYMENT_RENDER.md
 │   ├── PLATFORM_ADMIN.md
 │   └── ROADMAP.md
 ├── sample-data/                 synthetic CSV import example

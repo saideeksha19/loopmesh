@@ -141,13 +141,27 @@ class Settings(BaseSettings):
 
     @field_validator("database_url")
     @classmethod
-    def _require_supported_driver(cls, value: str) -> str:
-        allowed = ("postgresql+psycopg://", "postgresql://", "sqlite:")
-        if not value.startswith(allowed):
+    def _select_postgres_driver(cls, value: str) -> str:
+        """Select the installed psycopg 3 driver for provider-issued URLs.
+
+        Managed platforms hand out ``postgresql://`` (some legacy tooling still
+        emits ``postgres://``). SQLAlchemy maps both schemes to psycopg2, which
+        this project does not install. Rewriting the scheme to
+        ``postgresql+psycopg://`` selects the pinned psycopg 3 driver, so a
+        connection string copied from a hosting dashboard works unedited.
+        """
+        url = value.strip()
+        for prefix in ("postgres://", "postgresql://"):
+            if url.lower().startswith(prefix):
+                url = f"postgresql+psycopg://{url[len(prefix):]}"
+                break
+        allowed = ("postgresql+psycopg://", "sqlite:")
+        if not url.lower().startswith(allowed):
             raise ValueError(
-                "DATABASE_URL must use postgresql+psycopg:// (preferred) or sqlite://"
+                "DATABASE_URL must be a PostgreSQL URL (postgresql:// or "
+                "postgresql+psycopg://) or sqlite://"
             )
-        return value
+        return url
 
     @field_validator("log_level")
     @classmethod
