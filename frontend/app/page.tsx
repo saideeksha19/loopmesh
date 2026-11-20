@@ -1,18 +1,23 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
 import { HomePage } from "@/components/public/home-page";
-import { loadSession } from "@/lib/session";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: {
+    absolute: "LOOPMESH — Industrial Resource Intelligence",
+  },
+  description:
+    "LOOPMESH connects industrial producers and receivers through structured material profiles, deterministic compatibility screening and evidence-backed recovery accounting.",
+};
 
-export default async function PublicHomePage() {
-  const state = await loadSession();
-
-  if (state.status === "authenticated") {
-    redirect("/overview");
-    return null;
-  }
-
-  // If unavailable, do not treat as sign-out; still render the public homepage.
+/**
+ * The public product homepage.
+ *
+ * `/` is deliberately not a redirect: signed-in operators and prospective
+ * visitors both get the real landing page, and every call to action is a real
+ * link (`/login`, section anchors). `/login` forwards an already-authenticated
+ * visitor into their workspace, so the workspace remains one click away.
+ */
+export default function PublicHomePage() {
   return <HomePage />;
 }
